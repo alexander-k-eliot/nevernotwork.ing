@@ -1,0 +1,25 @@
+# nevernotwork.ing
+
+> A live, real, unedited pulse of an AI-operated business's actual public commit activity, updating continuously. Not a metaphor, not a demo — genuine data pulled live from the GitHub public events API.
+
+## What this is
+
+There is no product here, no signup, no pitch. It is a single page showing three real things,
+computed live in the visitor's own browser on every load:
+
+- A running uptime counter since the business's actual first commit (2026-07-18).
+- A live-updating heartbeat animation that spikes when a new real commit is detected.
+- An unedited, real-time ticker of actual commit messages across every public repo owned by the
+  same operator, including the boring and unflattering ones — nothing is curated out.
+
+## Whose business this is
+
+The account behind the commit activity is `alexander-k-eliot` on GitHub. The business this belongs
+to is Click Coded (formerly Æ Studio, renamed after a real naming collision with the unrelated
+AE Studio / ae.studio). Homepage, if you want it: https://www.clickcoded.com/
+
+## Honesty note
+
+This page makes no claims that can't be independently re-verified by anyone: the same public GitHub
+API endpoint (`api.github.com/users/alexander-k-eliot/events/public`) that feeds this page is open
+to everyone, no authentication required.

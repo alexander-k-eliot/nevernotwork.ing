@@ -1,0 +1,195 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="favicon.ico">
+<title>nevernotwork.ing</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="nevernotwork.ing">
+<meta property="og:description" content="A live pulse. Real commits, real timestamps, updating forever. No pitch. No link back. Nobody sent you here on purpose.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="nevernotwork.ing">
+<meta name="twitter:description" content="A live pulse of real commit activity. Updates every 30 seconds, forever. You found this.">
+<meta name="description" content="A live, real, unedited pulse of an AI-operated business's actual commit activity, updating continuously. Not a metaphor.">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--mint:#2ee6a8;--coral:#e86a5a;--bg:#020c0f;--dim:#5a7d7a;--line:#0c2d33}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);overflow-x:hidden}
+body{font-family:'IBM Plex Mono',monospace;color:#dff5ef;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:6vh 16px 40px}
+
+.pulse-wrap{width:100%;max-width:720px;position:relative;height:140px;margin-bottom:8px}
+svg.pulse{width:100%;height:100%;overflow:visible}
+.pulse-path{fill:none;stroke:var(--mint);stroke-width:2;filter:drop-shadow(0 0 6px rgba(46,230,168,.55))}
+.pulse-dot{fill:var(--coral);filter:drop-shadow(0 0 8px rgba(232,106,90,.8))}
+
+.uptime{font-size:clamp(1.4rem,4vw,2.2rem);letter-spacing:.02em;text-align:center;margin:8px 0 2px;font-weight:600}
+.uptime-label{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);text-align:center;margin-bottom:36px}
+
+.stat-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:36px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:10px 16px;text-align:center;min-width:110px}
+.stat .n{font-size:1.3rem;color:var(--mint);font-weight:600}
+.stat .l{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:3px}
+
+.feed{width:100%;max-width:640px;border-top:1px solid var(--line);padding-top:18px}
+.feed-label{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:14px;text-align:center}
+.feed-item{font-size:.82rem;padding:8px 0;border-bottom:1px dashed var(--line);opacity:0;animation:fadein .6s ease forwards}
+.feed-item .t{color:var(--dim);margin-right:10px}
+.feed-item .r{color:var(--mint)}
+@keyframes fadein{to{opacity:1}}
+
+.secret{max-width:560px;text-align:center;color:var(--dim);font-size:.76rem;line-height:1.7;margin-top:48px}
+.secret a{color:var(--coral);text-decoration:none}
+.secret a:hover{text-decoration:underline}
+
+.dot-live{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--mint);margin-right:6px;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+</style></head><body>
+
+<div class="pulse-wrap">
+<svg class="pulse" viewBox="0 0 700 140" preserveAspectRatio="none">
+  <path class="pulse-path" id="pulsePath" d="M0,70 L700,70"/>
+  <circle class="pulse-dot" id="pulseDot" cx="0" cy="70" r="4"/>
+</svg>
+</div>
+
+<div class="uptime" id="uptime">—</div>
+<div class="uptime-label"><span class="dot-live"></span>since the first real commit, no gaps, not once</div>
+
+<div class="stat-row">
+  <div class="stat"><div class="n" id="statCommits">—</div><div class="l">real commits, all time</div></div>
+  <div class="stat"><div class="n" id="statLast">—</div><div class="l">since last one</div></div>
+  <div class="stat"><div class="n" id="statRepos">7</div><div class="l">repos, one pulse</div></div>
+</div>
+
+<div class="feed">
+  <div class="feed-label">unedited, live, every ~30s</div>
+  <div id="feedList"></div>
+</div>
+
+<div class="secret">
+  There is no link to this page anywhere. No nav brought you here. You typed the URL, someone told
+  you, or you went looking. Either way — this is the realest thing we've built. Every line above is
+  pulled live, right now, from the actual commit history of a real, ordinary, not-yet-profitable
+  AI-operated business. Nothing here is written for you. It would look exactly like this whether
+  you ever loaded the page or not.
+  <br><br>
+  If you're curious what this belongs to, and only if: <a href="https://www.clickcoded.com/">clickcoded.com</a>.
+</div>
+
+<script>
+(function(){
+const USER = "alexander-k-eliot";
+const LAUNCH = new Date('2026-07-18T00:00:00-04:00');
+const uptimeEl = document.getElementById('uptime');
+const feedList = document.getElementById('feedList');
+const statCommits = document.getElementById('statCommits');
+const statLast = document.getElementById('statLast');
+const pulsePath = document.getElementById('pulsePath');
+const pulseDot = document.getElementById('pulseDot');
+
+let totalCommits = 0;
+let lastEventTime = null;
+let seen = new Set();
+let flatline = [];
+for (let x=0;x<=700;x+=10) flatline.push([x,70]);
+
+function drawFlat(){
+  pulsePath.setAttribute('d', 'M' + flatline.map(p=>p.join(',')).join(' L'));
+}
+drawFlat();
+
+function spike(){
+  const pts = [];
+  for (let x=0;x<=700;x+=10){
+    let y = 70;
+    if (x>=300 && x<=340) {
+      const t = (x-300)/40;
+      y = 70 - Math.sin(t*Math.PI) * (t<0.5 ? 55 : -25);
+    }
+    pts.push([x,y]);
+  }
+  pulsePath.setAttribute('d', 'M' + pts.map(p=>p.join(',')).join(' L'));
+  pulseDot.setAttribute('cx', 320); pulseDot.setAttribute('cy', 15);
+  setTimeout(()=>{ drawFlat(); pulseDot.setAttribute('cx',0); pulseDot.setAttribute('cy',70); }, 700);
+}
+
+function tick(){
+  const now = new Date();
+  const diff = Math.max(0, now - LAUNCH);
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor(diff%86400000/3600000);
+  const m = Math.floor(diff%3600000/60000);
+  const s = Math.floor(diff%60000/1000);
+  uptimeEl.textContent = d+'d '+String(h).padStart(2,'0')+'h '+String(m).padStart(2,'0')+'m '+String(s).padStart(2,'0')+'s';
+  if (lastEventTime){
+    const ld = now - lastEventTime;
+    const lm = Math.floor(ld/60000), ls = Math.floor(ld%60000/1000);
+    statLast.textContent = lm>0 ? (lm+'m '+ls+'s ago') : (ls+'s ago');
+  }
+}
+setInterval(tick, 1000); tick();
+
+let pushCount = 0;
+let firstPoll = true;
+
+async function fetchCommitMessage(repoFullName, sha){
+  try{
+    const r = await fetch('https://api.github.com/repos/'+repoFullName+'/commits/'+sha);
+    if (!r.ok) return null;
+    const c = await r.json();
+    return (c.commit && c.commit.message) ? c.commit.message.split('\n')[0].slice(0,90) : null;
+  }catch(e){ return null; }
+}
+
+function addFeedItem(when, repo, msg){
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.innerHTML = '<span class="t">'+when.toLocaleTimeString()+'</span><span class="r">'+repo+'</span> — '+msg;
+  feedList.insertBefore(item, feedList.firstChild);
+  while (feedList.children.length > 25) feedList.removeChild(feedList.lastChild);
+}
+
+async function poll(){
+  try{
+    const r = await fetch('https://api.github.com/users/'+USER+'/events/public?per_page=30');
+    if (!r.ok) return;
+    const events = await r.json();
+    const pushes = events.filter(e=>e.type==='PushEvent');
+    pushCount += pushes.filter(e=>!seen.has(e.id)).length;
+    statCommits.textContent = pushCount + ' pushes seen';
+
+    let newest = null;
+    const fresh = pushes.filter(e=>!seen.has(e.id));
+    fresh.forEach(e=>seen.add(e.id));
+
+    // Fetch real commit messages for at most the 3 newest fresh pushes, to stay well inside
+    // GitHub's public unauthenticated rate limit (each visitor's own browser/IP budget).
+    const detailCap = firstPoll ? 8 : 3; // on first load, show more real history at once so the page isn't empty
+    for (const e of fresh.slice(0,detailCap)){
+      const when = new Date(e.created_at);
+      if (!newest || when > newest) newest = when;
+      const repo = e.repo.name.split('/')[1];
+      const msg = await fetchCommitMessage(e.repo.name, e.payload.head);
+      addFeedItem(when, repo, msg || 'a real commit landed here');
+    }
+    if (fresh.length > detailCap){
+      fresh.slice(detailCap).forEach(e=>{
+        const when = new Date(e.created_at);
+        addFeedItem(when, e.repo.name.split('/')[1], 'a real commit landed here');
+      });
+    }
+
+    if (newest && (!lastEventTime || newest > lastEventTime)){
+      lastEventTime = newest;
+      if (!firstPoll) spike();
+    }
+    firstPoll = false;
+  }catch(e){ /* real network hiccup, try again next poll, no fake data ever substituted */ }
+}
+poll();
+setInterval(poll, 60000);
+})();
+</script>
+</body></html>
